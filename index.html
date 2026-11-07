@@ -1,521 +1,262 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Иркутская Тропа - @TropaIrkBot</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #0e1621;
-            color: #fff;
-            height: 100vh;
-            overflow: hidden;
-        }
-        
-        .chat-container {
-            max-width: 600px;
-            margin: 0 auto;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            background: #17212b;
-        }
-        
-        .chat-header {
-            background: #242f3d;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            border-bottom: 1px solid #0e1621;
-        }
-        
-        .avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-        
-        .chat-info h3 {
-            font-size: 16px;
-            font-weight: 500;
-        }
-        
-        .chat-info p {
-            font-size: 13px;
-            color: #8b9dc3;
-        }
-        
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-        
-        .message {
-            background: #2b5278;
-            padding: 12px 16px;
-            border-radius: 12px;
-            max-width: 80%;
-            position: relative;
-        }
-        
-        .welcome-banner {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 12px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .welcome-banner::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10,50 Q25,30 50,50 T90,50" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-dasharray="5,5"/></svg>') repeat;
-            opacity: 0.5;
-        }
-        
-        .welcome-banner span {
-            position: relative;
-            z-index: 1;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-        
-        .message-text {
-            line-height: 1.5;
-            margin-bottom: 12px;
-        }
-        
-        .inline-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-        
-        .btn {
-            background: #3a5f7f;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.2s;
-        }
-        
-        .btn:hover {
-            background: #4a6f8f;
-        }
-        
-        .btn-primary {
-            background: #5288c1;
-        }
-        
-        .btn-primary:hover {
-            background: #6298d1;
-        }
-        
-        .menu-button {
-            background: #242f3d;
-            padding: 12px 16px;
-            border-top: 1px solid #0e1621;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            transition: background 0.2s;
-        }
-        
-        .menu-button:hover {
-            background: #2b3642;
-        }
-        
-        .mini-app {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #0e1621;
-            z-index: 1000;
-            flex-direction: column;
-        }
-        
-        .mini-app.active {
-            display: flex;
-        }
-        
-        .mini-app-header {
-            background: #242f3d;
-            padding: 12px 16px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border-bottom: 1px solid #0e1621;
-        }
-        
-        .mini-app-close {
-            background: none;
-            border: none;
-            color: #fff;
-            font-size: 24px;
-            cursor: pointer;
-        }
-        
-        .mini-app-content {
-            flex: 1;
-            overflow-y: auto;
-            padding: 20px;
-        }
-        
-        .map-container {
-            background: #1e2a3a;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .map-svg {
-            width: 100%;
-            height: 400px;
-            background: #0e1621;
-            border-radius: 8px;
-        }
-        
-        .map-point {
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-        
-        .map-point:hover {
-            transform: scale(1.2);
-        }
-        
-        .diary-entry {
-            background: #fff;
-            color: #000;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            margin-bottom: 20px;
-            position: relative;
-            transform: rotate(-1deg);
-        }
-        
-        .diary-entry::before {
-            content: '';
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            width: 60px;
-            height: 20px;
-            background: rgba(255,255,0,0.3);
-            transform: translateX(-50%) rotate(2deg);
-            border-radius: 2px;
-        }
-        
-        .polaroid {
-            width: 100%;
-            max-width: 300px;
-            margin: 20px auto;
-            background: #fff;
-            padding: 10px 10px 30px 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            transform: rotate(2deg);
-        }
-        
-        .polaroid img {
-            width: 100%;
-            height: auto;
-            display: block;
-        }
-        
-        .polaroid-caption {
-            text-align: center;
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            margin-top: 10px;
-            color: #666;
-        }
-        
-        .diary-text {
-            font-family: 'Courier New', monospace;
-            line-height: 1.8;
-            margin: 20px 0;
-        }
-        
-        .status-badge {
-            display: inline-block;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-        
-        .status-red {
-            background: #ff4757;
-            color: #fff;
-        }
-        
-        .status-yellow {
-            background: #ffa502;
-            color: #fff;
-        }
-        
-        .status-green {
-            background: #2ed573;
-            color: #fff;
-        }
-        
-        .back-button {
-            background: #3a5f7f;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 20px;
-        }
-        
-        .back-button:hover {
-            background: #4a6f8f;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Иркутская Тропа · @TropaIrkBot</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0e1621; --panel:#17212b; --header:#1b2733; --in:#182533; --out:#2b5278;
+  --acc:#ff8a5c; --acc2:#e8506e; --txt:#eaf0f6; --mut:#7d8b99;
+  --red:#ff5252; --yel:#ffb020; --grn:#34c77b; --new:#9aa7b4;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Manrope',sans-serif;background:var(--bg);color:var(--txt);height:100vh;overflow:hidden}
+.tg{max-width:520px;margin:0 auto;height:100vh;display:flex;flex-direction:column;position:relative;
+  background:var(--panel) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.035' stroke-width='2'%3E%3Cpath d='M10 30 q10 -12 20 0 t20 0'/%3E%3Ccircle cx='90' cy='20' r='6'/%3E%3Cpath d='M80 90 l14 14 M94 90 l-14 14'/%3E%3Ccircle cx='30' cy='95' r='9'/%3E%3C/g%3E%3C/svg%3E");}
+/* HEADER */
+.tg-header{background:var(--header);padding:10px 14px;display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 1px 0 #0006;z-index:5}
+.tg-header .back{color:var(--mut);font-size:20px}
+.avatar{width:42px;height:42px;border-radius:50%;flex:none;box-shadow:0 2px 8px #0007}
+.hname{font-weight:700;font-size:15.5px}
+.hstatus{font-size:12.5px;color:#6fa8d0}
+.dots{margin-left:auto;color:var(--mut);font-size:20px;letter-spacing:1px}
+/* CHAT */
+.chat{flex:1;overflow-y:auto;padding:14px 12px 90px;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth}
+.msg{max-width:86%;padding:10px 12px;border-radius:14px;font-size:14.5px;line-height:1.5;animation:pop .3s ease both;box-shadow:0 1px 2px #0006}
+.msg.in{background:var(--in);align-self:flex-start;border-bottom-left-radius:4px}
+.msg .time{float:right;font-size:10.5px;color:var(--mut);margin:6px 0 0 8px}
+@keyframes pop{from{opacity:0;transform:translateY(10px) scale(.97)}}
+/* banner */
+.banner{border-radius:10px;overflow:hidden;position:relative;height:170px;margin-bottom:8px}
+.banner img{width:100%;height:100%;object-fit:cover;filter:saturate(.85)}
+.banner .ov{position:absolute;inset:0;background:linear-gradient(180deg,#0e162100 20%,#0e1621d9 85%);display:flex;flex-direction:column;justify-content:flex-end;padding:12px}
+.banner .t{font-size:20px;font-weight:800;letter-spacing:.3px}
+.banner .s{font-size:12px;color:#cfd8e3}
+.banner .stamp{position:absolute;top:10px;right:10px;border:2px solid #ffffffb0;color:#fff;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:700;transform:rotate(4deg);text-transform:uppercase;letter-spacing:1px}
+/* keyboard */
+.kb{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.kb .row{display:flex;gap:6px}
+.kbtn{flex:1;background:#3d6488;border:none;color:#fff;font-family:inherit;font-size:13.5px;font-weight:600;padding:10px 8px;border-radius:9px;cursor:pointer;transition:.15s;box-shadow:0 1px 0 #0004}
+.kbtn:active{transform:scale(.96);filter:brightness(1.2)}
+.kbtn.main{background:linear-gradient(90deg,#ff8a5c,#e8506e);font-size:14.5px;padding:12px}
+/* typing */
+.typing span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#8fa3b8;margin-right:4px;animation:bl 1s infinite}
+.typing span:nth-child(2){animation-delay:.15s}.typing span:nth-child(3){animation-delay:.3s}
+@keyframes bl{0%,60%,100%{opacity:.3;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+/* FOOTER */
+.tg-footer{position:absolute;bottom:0;left:0;right:0;display:flex;align-items:center;gap:8px;padding:8px 10px;background:linear-gradient(0deg,var(--panel) 70%,#17212b00)}
+.menubtn{background:linear-gradient(90deg,#ff8a5c,#e8506e);border:none;color:#fff;font-family:inherit;font-weight:700;font-size:13px;padding:11px 16px;border-radius:22px;cursor:pointer;box-shadow:0 4px 14px #e8506e55;transition:.15s}
+.menubtn:active{transform:scale(.95)}
+.inpfake{flex:1;background:var(--in);border-radius:20px;padding:11px 16px;color:var(--mut);font-size:14px}
+.mic{width:40px;height:40px;border-radius:50%;background:var(--in);display:flex;align-items:center;justify-content:center;font-size:18px}
+/* OVERLAYS */
+.ovl{position:fixed;inset:0;background:#000a;backdrop-filter:blur(6px);z-index:50;display:none;align-items:flex-end;justify-content:center}
+.ovl.open{display:flex}
+.sheet{width:100%;max-width:520px;background:var(--panel);border-radius:18px 18px 0 0;padding:18px;max-height:88vh;overflow-y:auto;animation:up .3s ease}
+@keyframes up{from{transform:translateY(40px);opacity:0}}
+.sheet .close{float:right;background:#242f3d;border:none;color:#fff;width:30px;height:30px;border-radius:50%;cursor:pointer;font-size:15px}
+.prof{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:10px 0 16px}
+.prof img{width:96px;height:96px;border-radius:50%;box-shadow:0 6px 24px #e8506e66}
+.prof .un{color:#6fa8d0;font-size:14px}
+.prof .bio{color:var(--mut);font-size:13.5px;line-height:1.5;max-width:340px}
+.phgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:12px}
+.phgrid img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:6px;cursor:pointer;transition:.15s}
+.phgrid img:active{transform:scale(.92)}
+.sect{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--mut);margin:14px 0 6px;text-align:left}
+/* MINIAPP */
+.miniapp{position:fixed;inset:0;z-index:60;background:var(--bg);max-width:520px;margin:0 auto;transform:translateY(100%);transition:transform .35s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column}
+.miniapp.open{transform:translateY(0)}
+.ma-head{background:var(--header);padding:12px 14px;display:flex;align-items:center;gap:10px}
+.ma-head img{width:30px;height:30px;border-radius:50%}
+.ma-head .x{margin-left:auto;background:none;border:none;color:var(--mut);font-size:22px;cursor:pointer}
+.tabs{display:flex;background:var(--header);border-bottom:1px solid #0008}
+.tab{flex:1;background:none;border:none;color:var(--mut);font-family:inherit;font-weight:700;font-size:13px;padding:11px 0;cursor:pointer;border-bottom:2px solid transparent}
+.tab.on{color:var(--acc);border-bottom-color:var(--acc)}
+.ma-body{flex:1;overflow-y:auto;padding:14px}
+.view{display:none}.view.on{display:block;animation:pop .25s ease}
+/* map */
+.stats{display:flex;gap:8px;margin-bottom:10px}
+.stat{flex:1;background:var(--panel);border-radius:10px;padding:8px;text-align:center}
+.stat b{display:block;font-size:18px}
+.stat i{font-style:normal;font-size:10.5px;color:var(--mut)}
+.chips{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.chip{border:1px solid #2c3a49;background:var(--panel);color:var(--txt);font-family:inherit;font-size:12px;font-weight:600;border-radius:16px;padding:6px 12px;cursor:pointer}
+.chip.on{background:#2c3a49}
+.mapcard{background:var(--panel);border-radius:14px;padding:8px;box-shadow:0 6px 24px #0006}
+svg.map{width:100%;height:auto;display:block;border-radius:10px;background:#0b131c}
+.pin{cursor:pointer}
+.pin circle.core{transition:.15s}
+.pin:active circle.core{r:16}
+.pin.dim{opacity:.15;pointer-events:none}
+.pin .ring{animation:pulse 2s infinite;transform-origin:center;opacity:.5}
+@keyframes pulse{0%{r:14;opacity:.5}100%{r:24;opacity:0}}
+.hint{text-align:center;color:var(--mut);font-size:12px;margin-top:8px}
+/* diary */
+.polar{background:#fff;padding:10px 10px 14px;border-radius:4px;box-shadow:0 8px 24px #0009;transform:rotate(-1.5deg);position:relative;margin:26px 6px 18px}
+.polar::before{content:'';position:absolute;top:-12px;left:50%;transform:translateX(-50%) rotate(-3deg);width:90px;height:24px;background:#ffd76680;border-radius:2px}
+.polar img{width:100%;border-radius:2px;display:block}
+.polar .cap{font-family:'Caveat',cursive;font-size:19px;color:#333;text-align:center;margin-top:8px}
+.dtitle{font-size:20px;font-weight:800}
+.daddr{color:var(--mut);font-size:13px;margin:2px 0 4px}
+.dtext{font-family:'Caveat',cursive;font-size:21px;line-height:1.45;color:#dfe7ee;margin:12px 2px}
+.vstamp{display:inline-block;border:3px double;padding:4px 12px;border-radius:6px;font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:13px;transform:rotate(-3deg)}
+.v-red{color:var(--red);border-color:var(--red)} .v-yel{color:var(--yel);border-color:var(--yel)} .v-grn{color:var(--grn);border-color:var(--grn)} .v-new{color:var(--new);border-color:var(--new)}
+.bypass{background:#12283a;border-left:3px solid var(--grn);border-radius:8px;padding:10px 12px;font-size:13.5px;margin-top:12px}
+.backbtn{width:100%;margin-top:14px;background:#242f3d;border:none;color:#fff;font-family:inherit;font-weight:700;padding:12px;border-radius:10px;cursor:pointer}
+/* route */
+.step{display:flex;gap:12px;background:var(--panel);border-radius:12px;padding:12px;margin-bottom:8px;align-items:flex-start}
+.step .ic{font-size:22px}
+.step b{font-size:14px}
+.step p{font-size:13px;color:var(--mut);margin-top:2px}
+.step .sdot{margin-left:auto;width:10px;height:10px;border-radius:50%;flex:none;margin-top:6px}
+/* form */
+.fld{width:100%;background:var(--panel);border:1px solid #2c3a49;border-radius:10px;color:var(--txt);font-family:inherit;font-size:14px;padding:11px 12px;margin-bottom:10px}
+.fld:focus{outline:none;border-color:var(--acc)}
+.send{width:100%;background:linear-gradient(90deg,#ff8a5c,#e8506e);border:none;color:#fff;font-family:inherit;font-weight:800;font-size:15px;padding:13px;border-radius:10px;cursor:pointer}
+</style>
 </head>
 <body>
-    <div class="chat-container">
-        <div class="chat-header">
-            <div class="avatar">ИТ</div>
-            <div class="chat-info">
-                <h3>Иркутская Тропа</h3>
-                <p>бот · онлайн</p>
-            </div>
-        </div>
-        
-        <div class="chat-messages">
-            <div class="message">
-                <div class="welcome-banner">
-                    <span>🦽 Иркутская Тропа</span>
-                </div>
-                <div class="message-text">
-                    Привет! Я знаю, где пандус ведёт в стену, а через какой двор реально проехать.<br><br>
-                    Всё проверено ногами и колёсами вокруг ИрНИТУ (Лермонтова, 92).<br><br>
-                    Жми кнопку ниже — откроется карта-дневник с честными маршрутами.
-                </div>
-                <div class="inline-buttons">
-                    <button class="btn btn-primary" onclick="openMiniApp()">🗺 Открыть карту троп</button>
-                    <button class="btn" onclick="showMessage('Добавление барьера: отправь фото и адрес сюда')">➕ Добавить барьер</button>
-                    <button class="btn" onclick="showMessage('Проект создан студентами ИТАС для улучшения доступности города')">📖 О проекте</button>
-                    <button class="btn" onclick="showMessage('Для срочной помощи звоните: +7 (3952) 40-50-00')">♿ Срочно нужна помощь</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="menu-button" onclick="openMiniApp()">
-            🗺 <span>Карта троп</span>
-        </div>
+<div class="tg">
+  <div class="tg-header" onclick="openProfile()">
+    <span class="back">←</span>
+    <img class="avatar" id="ava" alt="">
+    <div><div class="hname">Иркутская Тропа</div><div class="hstatus">бот</div></div>
+    <span class="dots">⋮</span>
+  </div>
+  <div class="chat" id="chat"></div>
+  <div class="tg-footer">
+    <button class="menubtn" onclick="openMA('map')">🗺 Карта троп</button>
+    <div class="inpfake">Сообщение</div>
+    <div class="mic">🎤</div>
+  </div>
+</div>
+
+<div class="ovl" id="profOvl"><div class="sheet">
+  <button class="close" onclick="closeProfile()">✕</button>
+  <div class="prof">
+    <img id="avaBig" alt="">
+    <div class="hname" style="font-size:19px">Иркутская Тропа</div>
+    <div class="un">@TropaIrkBot</div>
+    <div class="bio">Честные маршруты для колясок в Иркутске 🦽 Полевой дневник студгородка ИрНИТУ: 10 точек, проверенных колёсами. Проект студентов ИТАС (Лермонтова, 92).</div>
+  </div>
+  <div class="sect">Фото дневника</div>
+  <div class="phgrid" id="phGrid"></div>
+</div></div>
+
+<div class="miniapp" id="ma">
+  <div class="ma-head">
+    <img id="avaSm" alt="">
+    <div><div class="hname" style="font-size:14px">Иркутская Тропа</div><div class="hstatus">мини-апп</div></div>
+    <button class="x" onclick="closeMA()">⌄</button>
+  </div>
+  <div class="tabs">
+    <button class="tab on" data-v="map" onclick="sw('map')">Карта</button>
+    <button class="tab" data-v="route" onclick="sw('route')">Маршрут</button>
+    <button class="tab" data-v="add" onclick="sw('add')">Добавить</button>
+  </div>
+  <div class="ma-body">
+    <div class="view on" id="v-map">
+      <div class="stats" id="stats"></div>
+      <div class="chips">
+        <button class="chip on" onclick="filt('all',this)">Все</button>
+        <button class="chip" onclick="filt('red',this)">🔴 Барьеры</button>
+        <button class="chip" onclick="filt('yel',this)">🟡 Осторожно</button>
+        <button class="chip" onclick="filt('grn',this)">🟢 Доступно</button>
+      </div>
+      <div class="mapcard"><svg class="map" viewBox="0 0 900 480" id="mapSvg"></svg></div>
+      <div class="hint">Нажми на точку — откроется страница дневника</div>
     </div>
-    
-    <div class="mini-app" id="miniApp">
-        <div class="mini-app-header">
-            <h3>🗺 Карта-дневник</h3>
-            <button class="mini-app-close" onclick="closeMiniApp()">✕</button>
-        </div>
-        <div class="mini-app-content" id="miniAppContent">
-            <div id="mapView">
-                <h2 style="margin-bottom: 20px;">Район ИрНИТУ</h2>
-                <div class="map-container">
-                    <svg class="map-svg" viewBox="0 0 800 400">
-                        <line x1="0" y1="200" x2="800" y2="200" stroke="#5288c1" stroke-width="20" opacity="0.3"/>
-                        <text x="400" y="195" text-anchor="middle" fill="#8b9dc3" font-size="14">ул. Лермонтова</text>
-                        
-                        <circle class="map-point" cx="400" cy="200" r="15" fill="#ff4757" onclick="showDiary(0)"/>
-                        <text x="400" y="230" text-anchor="middle" fill="#fff" font-size="11">ИТАС</text>
-                        
-                        <circle class="map-point" cx="350" cy="180" r="12" fill="#ffa502" onclick="showDiary(1)"/>
-                        <text x="350" y="165" text-anchor="middle" fill="#fff" font-size="10">Punto</text>
-                        
-                        <circle class="map-point" cx="450" cy="180" r="12" fill="#ffa502" onclick="showDiary(2)"/>
-                        <text x="450" y="165" text-anchor="middle" fill="#fff" font-size="10">Papa</text>
-                        
-                        <circle class="map-point" cx="500" cy="200" r="15" fill="#2ed573" onclick="showDiary(3)"/>
-                        <text x="500" y="230" text-anchor="middle" fill="#fff" font-size="11">Подземник</text>
-                        
-                        <circle class="map-point" cx="300" cy="250" r="15" fill="#2ed573" onclick="showDiary(4)"/>
-                        <text x="300" y="275" text-anchor="middle" fill="#fff" font-size="11">Общ. №3</text>
-                        
-                        <circle class="map-point" cx="350" cy="250" r="15" fill="#2ed573" onclick="showDiary(5)"/>
-                        <text x="350" y="275" text-anchor="middle" fill="#fff" font-size="11">Общ. №2</text>
-                        
-                        <circle class="map-point" cx="250" cy="250" r="15" fill="#ff4757" onclick="showDiary(6)"/>
-                        <text x="250" y="275" text-anchor="middle" fill="#fff" font-size="11">Общ. №1</text>
-                        
-                        <circle class="map-point" cx="550" cy="150" r="15" fill="#ffa502" onclick="showDiary(7)"/>
-                        <text x="550" y="135" text-anchor="middle" fill="#fff" font-size="11">Остановка</text>
-                        
-                        <circle class="map-point" cx="600" cy="200" r="15" fill="#ff4757" onclick="showDiary(8)"/>
-                        <text x="600" y="230" text-anchor="middle" fill="#fff" font-size="11">ИрНИТУ</text>
-                        
-                        <circle class="map-point" cx="200" cy="150" r="15" fill="#2ed573" onclick="showDiary(9)"/>
-                        <text x="200" y="135" text-anchor="middle" fill="#fff" font-size="11">Биг Бен</text>
-                        
-                        <rect x="20" y="20" width="150" height="100" fill="#242f3d" rx="8"/>
-                        <circle cx="40" cy="45" r="8" fill="#ff4757"/>
-                        <text x="55" y="50" fill="#fff" font-size="12">Барьер</text>
-                        <circle cx="40" cy="70" r="8" fill="#ffa502"/>
-                        <text x="55" y="75" fill="#fff" font-size="12">Осторожно</text>
-                        <circle cx="40" cy="95" r="8" fill="#2ed573"/>
-                        <text x="55" y="100" fill="#fff" font-size="12">Доступно</text>
-                    </svg>
-                </div>
-                <p style="text-align: center; color: #8b9dc3; font-size: 14px;">Нажмите на точку для просмотра записи</p>
-            </div>
-            
-            <div id="diaryView" style="display: none;"></div>
-        </div>
+    <div class="view" id="v-route">
+      <div class="dtitle" style="margin-bottom:10px">Честный маршрут: остановка → ИТАС</div>
+      <div id="routeSteps"></div>
+      <div class="bypass">⏱ 12 минут пешком · из них 2 минуты — борьба с архитектурой. Обычная карта ведёт через главный вход — мы ведём через реальный.</div>
     </div>
-    
-    <script>
-        const diaryEntries = [
-            {
-                title: "Вход в корпус ИТАС",
-                address: "Лермонтова, 92",
-                image: "https://i.ibb.co/5JYSYr8/i-5.jpg",
-                status: "red",
-                statusText: "Барьер",
-                text: "Главный вход в наш корпус. Высокое крыльцо со ступенями, пандуса нет. Чтобы попасть внутрь на коляске, нужно искать чёрный ход или просить помощи. Формально здание учебное, фактически — крепость."
-            },
-            {
-                title: "Punto Coffee",
-                address: "Лермонтова, 92/2",
-                image: "https://i.ibb.co/pvytbDrD/Screenshot-20261107-125026.jpg",
-                status: "yellow",
-                statusText: "Осторожно",
-                text: "Кофейня на первом этаже. Заехать можно, но с трудом: узкий проход между стойкой и столиками, дверь открывается на себя. Если внутри много людей — маневрировать почти невозможно."
-            },
-            {
-                title: "Papa Chicken",
-                address: "Лермонтова, 92/1",
-                image: "https://i.ibb.co/vCMFCSzr/Screenshot-20261107-125148.jpg",
-                status: "yellow",
-                statusText: "Осторожно",
-                text: "Фастфуд рядом с корпусом. Есть небольшая ступенька на входе, дверь тяжёлая. Внутри узкие проходы между кассой и раздаточной. Заказать можно, но сесть с комфортом — вряд ли."
-            },
-            {
-                title: "Подземный переход",
-                address: "Лермонтова, напротив Гуманитарного центра",
-                image: "https://i.ibb.co/1ftdHdWg/8f7739d7-a123-4077-9d07-f6011288dbc4-jpg-730x1000-x-False-q85.jpg",
-                status: "green",
-                statusText: "Доступно",
-                text: "Приятное исключение! В подземном переходе есть спуски для колясок — пологие пандусы с обеих сторон. В 2025 году стены расписали граффити, но про доступность не забыли. Можно спокойно переходить улицу."
-            },
-            {
-                title: "Общежитие №3",
-                address: "Лермонтова, 89",
-                image: "https://i.ibb.co/6RPLSBNR/Screenshot-20261107-125348.jpg",
-                status: "green",
-                statusText: "Доступно",
-                text: "Советское здание, но с пандусом у входа. Наклон нормальный, поручни есть. Внутри лифт работает. Студенты с инвалидностью живут здесь без проблем."
-            },
-            {
-                title: "Общежитие №2",
-                address: "Лермонтова, 87",
-                image: "https://i.ibb.co/xKq8bVkw/Screenshot-20261107-125555.jpg",
-                status: "green",
-                statusText: "Доступно",
-                text: "Аналогично третьему общежитию: пандус установлен, угол пологий, поручни надёжные. Входная дверь автоматическая или лёгкая. Внутри есть лифт."
-            },
-            {
-                title: "Общежитие №1",
-                address: "Лермонтова, 85",
-                image: "https://i.ibb.co/xKq8bVkw/Screenshot-20261107-125555.jpg",
-                status: "red",
-                statusText: "Барьер",
-                text: "А вот здесь проблема. Пандуса нет, только высокое крыльцо со ступенями. Чтобы попасть внутрь, нужно либо искать запасной вход (если он вообще есть), либо звать вахтёра с ключом от боковой двери."
-            },
-            {
-                title: "Остановка «Технический университет»",
-                address: "Лермонтова",
-                image: "https://i.ibb.co/TMRDkqtX/Screenshot-20261107-125830.jpg",
-                status: "yellow",
-                statusText: "Осторожно",
-                text: "Новая тёплая остановка 2024 года. Сам павильон удобный, но есть нюанс: высота бордюра не совпадает с полом автобуса. Колясочнику нужна помощь, чтобы заехать. Если дождь — под козырёк не подняться, там ступенька."
-            },
-            {
-                title: "Главный корпус ИрНИТУ",
-                address: "Лермонтова, 83",
-                image: "https://i.ibb.co/rf6xjjFC/Screenshot-20261107-130029.jpg",
-                status: "red",
-                statusText: "Барьер",
-                text: "Главный вход — только лестница. Никаких пандусов, подъёмников или лифтов у парадного крыльца. Вуз закупил мобильные подъёмники, но их нужно заказывать заранее. Спонтанно зайти на лекцию не получится."
-            },
-            {
-                title: "ТЦ «Биг Бен»",
-                address: "Лермонтова, 63а",
-                image: "https://i.ibb.co/yznh0Gx/Screenshot-20261107-130816.jpg",
-                status: "green",
-                statusText: "Доступно",
-                text: "Отличный пример! У входа есть подъёмник для инвалидов. Работает исправно, кнопки вызова персонала на месте. Внутри лифты, широкие проходы между магазинами, доступные туалеты. Здесь продумали всё."
-            }
-        ];
-        
-        function openMiniApp() {
-            document.getElementById('miniApp').classList.add('active');
-        }
-        
-        function closeMiniApp() {
-            document.getElementById('miniApp').classList.remove('active');
-            document.getElementById('mapView').style.display = 'block';
-            document.getElementById('diaryView').style.display = 'none';
-        }
-        
-        function showDiary(index) {
-            const entry = diaryEntries[index];
-            const statusClass = entry.status === 'red' ? 'status-red' : entry.status === 'yellow' ? 'status-yellow' : 'status-green';
-            
-            document.getElementById('mapView').style.display = 'none';
-            const diaryView = document.getElementById('diaryView');
-            diaryView.style.display = 'block';
-            
-            diaryView.innerHTML = `
-                <div class="diary-entry">
-                    <h2 style="margin-bottom: 10px;">${entry.title}</h2>
-                    <p style="color: #666; margin-bottom: 20px;">${entry.address}</p>
-                    
-                    <div class="polaroid">
-                        <img src="${entry.image}" alt="${entry.title}">
-                        <div class="polaroid-caption">Запись из полевого дневника</div>
-                    </div>
-                    
-                    <span class="status-badge ${statusClass}">${entry.statusText}</span>
-                    
-                    <div class="diary-text">
-                        ${entry
+    <div class="view" id="v-add">
+      <div class="dtitle" style="margin-bottom:4px">Добавить барьер</div>
+      <div class="daddr" style="margin-bottom:12px">Точка попадёт на карту со статусом «требует проверки»</div>
+      <input class="fld" id="fAddr" placeholder="Адрес (например: Лермонтова, 92)">
+      <select class="fld" id="fType">
+        <option>Лестница без пандуса</option><option>Высокий бордюр</option>
+        <option>Узкая / тяжёлая дверь</option><option>Крутой пандус</option><option>Другое</option>
+      </select>
+      <textarea class="fld" id="fDesc" rows="3" placeholder="Что происходит в этом месте?"></textarea>
+      <input class="fld" id="fImg" placeholder="Ссылка на фото (необязательно)">
+      <button class="send" onclick="addPlace()">Отправить в дневник ➤</button>
+    </div>
+    <div class="view" id="v-diary"></div>
+  </div>
+</div>
+
+<script>
+var AVA = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23ff8a5c'/%3E%3Cstop offset='1' stop-color='%23e8506e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ccircle cx='50' cy='50' r='50' fill='url(%23g)'/%3E%3Cpath d='M18 64 C 34 40, 44 80, 58 54 S 76 34, 82 42' fill='none' stroke='%23fff' stroke-width='6' stroke-linecap='round' stroke-dasharray='11 8'/%3E%3Ccircle cx='76' cy='28' r='11' fill='%23fff'/%3E%3Ccircle cx='76' cy='28' r='4.5' fill='%23e8506e'/%3E%3C/svg%3E";
+document.getElementById('ava').src = AVA;
+document.getElementById('avaBig').src = AVA;
+document.getElementById('avaSm').src = AVA;
+
+var P = [
+ {t:"Вход в корпус ИТАС",a:"Лермонтова, 92",s:"red",x:700,y:150,l:"ИТАС 92",
+  img:"https://i.ibb.co/5JYSYr8/i-5.jpg",
+  d:"Главный вход в наш родной корпус. Высокое крыльцо, ступени, пандуса нет и не планировался. Коляска здесь упирается в архитектуру: формально здание учебное, фактически — крепость.",
+  b:"Что делать: позвонить охране заранее — помогут попасть через боковой вход."},
+ {t:"Punto Coffee",a:"Лермонтова, 92/2",s:"yel",x:650,y:310,l:"Punto",
+  img:"https://i.ibb.co/pvytbDrD/Screenshot-20261107-125026.jpg",
+  d:"Кофейня в нашем же доме. Заехать в принципе можно, но неудобно: порог, дверь открывается на себя, внутри узко. С коляской — только в часы, когда нет очереди.",
+  b:"Совет: заходить вне пика и попросить бариста придержать дверь."},
+ {t:"Papa Chicken",a:"Лермонтова, 92/1",s:"yel",x:770,y:310,l:"Papa",
+  img:"https://i.ibb.co/vCMFCSzr/Screenshot-20261107-125148.jpg",
+  d:"Фастфуд через стену. Ступенька на входе и тяжёлая дверь: сам не заедешь, а с едой в руках тем более. Внутри проходы узкие.",
+  b:"Совет: заказ навынос через приложение — занесут персонал."},
+ {t:"Подземный переход",a:"Лермонтова, у Гуманитарного центра",s:"grn",x:520,y:240,l:"Подземник",
+  img:"https://i.ibb.co/1ftdHdWg/8f7739d7-a123-4077-9d07-f6011288dbc4-jpg-730x1000-x-False-q85.jpg",
+  d:"А вот тут город молодец: в подземном переходе есть пологие спуски для колясок с обеих сторон. Стены в 2025-м расписали граффити, но про колёса не забыли. Переходим улицу спокойно.",
+  b:""},
+ {t:"Общежитие №3",a:"Лермонтова, 89",s:"grn",x:560,y:340,l:"Общ. 89",
+  img:"https://i.ibb.co/6RPLSBNR/Screenshot-20261107-125348.jpg",
+  d:"Советское здание, но у входа стоит нормальный пандус: угол пологий, поручни на месте. Жить можно.",
+  b:""},
+ {t:"Общежитие №2",a:"Лермонтова, 87",s:"grn",x:470,y:340,l:"Общ. 87",
+  img:"https://i.ibb.co/xKq8bVkw/Screenshot-20261107-125555.jpg",
+  d:"То же самое: подъём/спуск у входа установлен, коляска заходит без приключений.",
+  b:""},
+ {t:"Общежитие №1",a:"Лермонтова, 85",s:"red",x:380,y:340,l:"Общ. 85",
+  img:"https://i.ibb.co/xKq8bVkw/Screenshot-20261107-125555.jpg",
+  d:"А у первого общежития подъёма нет: крыльцо со ступенями, и всё. Дом для студента на колёсах начинается с барьера на собственной двери.",
+  b:"Что делать: просить вахтёра о запасном входе."},
+ {t:"Остановка «Технический университет»",a:"Лермонтова, у ИрНИТУ",s:"yel",x:440,y:110,l:"Остановка",
+  img:"https://i.ibb.co/TMRDkqtX/Screenshot-20261107-125830.jpg",
+  d:"Первая в городе тёплая остановка (2024). Павильон классный, но под козырёк коляске не подняться — ступенька, а бордюр не совпадает с полом автобуса: посадка только с помощью.",
+  b:"Совет: просить водителя откинуть аппарель — она есть в новых автобусах."},
+ {t:"Главный корпус ИрНИТУ",a:"Лермонтова, 83",s:"red",x:280,y:150,l:"ИрНИТУ 83",
+  img:"https://i.ibb.co/rf6xjjFC/Screenshot-20261107-130029.jpg",
+  d:"Парадный вход — только лестница, ё-моё. Никакого пандуса у крыльца. Вуз держит мобильные подъёмники, но они включаются звонком: доступность по записи.",
+  b:"Что делать: приёмная ИрНИТУ, служба доступной среды: +7 (3952) 405-000."},
+ {t:"ТЦ «Биг Бен»",a:"Лермонтова, 63а",s:"grn",x:100,y:150,l:"Биг Бен",
+  img:"https://i.ibb.co/yznh0Gx/Screenshot-20261107-130816.jpg",
+  d:"Вот так надо: у входа рабочий подъёмник для инвалидов, кнопка вызова на месте. Внутри лифты и широкие проходы. Зачёт коммерсантам.",
+  b:""}
+];
+var COL = {red:"#ff5252", yel:"#ffb020", grn:"#34c77b", neu:"#9aa7b4"};
+var VTX = {red:"БАРЬЕР", yel:"ОСТОРОЖНО", grn:"ДОСТУПНО", neu:"ТРЕБУЕТ ПРОВЕРКИ"};
+
+/* ---- chat ---- */
+function tm(){var d=new Date();return ("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);}
+function chat(){return document.getElementById('chat');}
+function addMsg(html,cls){var m=document.createElement('div');m.className='msg '+(cls||'in');m.innerHTML=html+'<span class="time">'+tm()+'</span>';chat().appendChild(m);chat().scrollTop=chat().scrollHeight;return m;}
+function botSay(html,delay){var t=addMsg('<span class="typing"><span></span><span></span><span></span></span>');setTimeout(function(){t.innerHTML=html+'<span class="time">'+tm()+'</span>';chat().scrollTop=chat().scrollHeight;},delay||800);}
+function welcome(){
+ addMsg('<div class="banner"><img src="https://i.ibb.co/1ftdHdWg/8f7739d7-a123-4077-9d07-f6011288dbc4-jpg-730x1000-x-False-q85.jpg" alt=""><div class="ov"><div class="t">🦽 Иркутская Тропа</div><div class="s">честные маршруты студгородка · Лермонтова 92</div></div><div class="stamp">полевой дневник</div></div>'+
+ 'Привет! Я знаю, где пандус ведёт в стену, а через какой двор реально проехать.<br><br>Всё проверено ногами и колёсами вокруг ИрНИТУ. Жми кнопку — откроется карта-дневник с честными маршрутами.'+
+ '<div class="kb"><button class="kbtn main" onclick="openMA(\'map\')">🗺 Открыть карту троп</button>'+
+ '<div class="row"><button class="kbtn" onclick="btnAdd()">➕ Добавить барьер</button><button class="kbtn" onclick="btnAbout()">📖 О проекте</button></div>'+
+ '<button class="kbtn" onclick="btnHelp()">♿ Срочно нужна помощь</button></div>');
+}
+function btnAdd(){botSay('Открываю форму добавления… Точка появится на карте со штампом «требует проверки».',600);setTimeout(function(){openMA('add');},700);}
+function btnAbout(){botSay('📖 «Иркутская Тропа» — полевой дневник доступной среды студгородка. Мы прошли район ИрНИТУ и честно записали 10 точек: где коляска проезжает, а где упирается в лестницу. Инсайт простой: пандусы на картах есть, а на деле ведут в стену. Поэтому мы показываем не «официальную», а народную тропу.',700);}
+function btnHelp(){botSay('♿ Держи проверенные контакты:<br>• Служба доступной среды ИрНИТУ: <b>+7 (3952) 405-000</b><br>• Экстренные службы: <b>112</b><br>Если застрял на маршруте — напиши в чат, бот передаст волонтёрам кампуса.',700);}
+
+/* ---- profile ---- */
+function openProfile(){document.getElementById('profOvl').classList.add('open');}
+function closeProfile(){document.getElementById('profOvl').classList.remove('open');}
+function buildGrid(){var g=document.getElementById('phGrid');g.innerHTML='';P.forEach(function(p,i){if(!p.img)return;var im=document.createElement('img');im.src=p.img;im.onclick=function(){closeProfil
