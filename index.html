@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Иркутская Тропа - @TropaIrkBot</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0e1621;
+            color: #fff;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .chat-container {
+            max-width: 600px;
+            margin: 0 auto;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: #17212b;
+        }
+        
+        .chat-header {
+            background: #242f3d;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid #0e1621;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .chat-info h3 {
+            font-size: 16px;
+            font-weight: 500;
+        }
+        
+        .chat-info p {
+            font-size: 13px;
+            color: #8b9dc3;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            background: #2b5278;
+            padding: 12px 16px;
+            border-radius: 12px;
+            max-width: 80%;
+            position: relative;
+        }
+        
+        .welcome-banner {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .welcome-banner::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><path d="M10,50 Q25,30 50,50 T90,50" stroke="rgba(255,255,255,0.3)" stroke-width="3" fill="none" stroke-dasharray="5,5"/></svg>') repeat;
+            opacity: 0.5;
+        }
+        
+        .welcome-banner span {
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        
+        .message-text {
+            line-height: 1.5;
+            margin-bottom: 12px;
+        }
+        
+        .inline-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .btn {
+            background: #3a5f7f;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+        
+        .btn:hover {
+            background: #4a6f8f;
+        }
+        
+        .btn-primary {
+            background: #5288c1;
+        }
+        
+        .btn-primary:hover {
+            background: #6298d1;
+        }
+        
+        .menu-button {
+            background: #242f3d;
+            padding: 12px 16px;
+            border-top: 1px solid #0e1621;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.2s;
+        }
+        
+        .menu-button:hover {
+            background: #2b3642;
+        }
+        
+        .mini-app {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0e1621;
+            z-index: 1000;
+            flex-direction: column;
+        }
+        
+        .mini-app.active {
+            display: flex;
+        }
+        
+        .mini-app-header {
+            background: #242f3d;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #0e1621;
+        }
+        
+        .mini-app-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .mini-app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
+        .map-container {
+            background: #1e2a3a;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .map-svg {
+            width: 100%;
+            height: 400px;
+            background: #0e1621;
+            border-radius: 8px;
+        }
+        
+        .map-point {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .map-point:hover {
+            transform: scale(1.2);
+        }
+        
+        .diary-entry {
+            background: #fff;
+            color: #000;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            position: relative;
+            transform: rotate(-1deg);
+        }
+        
+        .diary-entry::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            width: 60px;
+            height: 20px;
+            background: rgba(255,255,0,0.3);
+            transform: translateX(-50%) rotate(2deg);
+            border-radius: 2px;
+        }
+        
+        .polaroid {
+            width: 100%;
+            max-width: 300px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 10px 10px 30px 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: rotate(2deg);
+        }
+        
+        .polaroid img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .polaroid-caption {
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+            color: #666;
+        }
+        
+        .diary-text {
+            font-family: 'Courier New', monospace;
+            line-height: 1.8;
+            margin: 20px 0;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .status-red {
+            background: #ff4757;
+            color: #fff;
+        }
+        
+        .status-yellow {
+            background: #ffa502;
+            color: #fff;
+        }
+        
+        .status-green {
+            background: #2ed573;
+            color: #fff;
+        }
+        
+        .back-button {
+            background: #3a5f7f;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 20px;
+        }
+        
+        .back-button:hover {
+            background: #4a6f8f;
+        }
+    </style>
+</head>
+<body>
+    <div class="chat-container">
+        <div class="chat-header">
+            <div class="avatar">ИТ</div>
+            <div class="chat-info">
+                <h3>Иркутская Тропа</h3>
+                <p>бот · онлайн</p>
+            </div>
+        </div>
+        
+        <div class="chat-messages">
+            <div class="message">
+                <div class="welcome-banner">
+                    <span>🦽 Иркутская Тропа</span>
+                </div>
+                <div class="message-text">
+                    Привет! Я знаю, где пандус ведёт в стену, а через какой двор реально проехать.<br><br>
+                    Всё проверено ногами и колёсами вокруг ИрНИТУ (Лермонтова, 92).<br><br>
+                    Жми кнопку ниже — откроется карта-дневник с честными маршрутами.
+                </div>
+                <div class="inline-buttons">
+                    <button class="btn btn-primary" onclick="openMiniApp()">🗺 Открыть карту троп</button>
+                    <button class="btn" onclick="showMessage('Добавление барьера: отправь фото и адрес сюда')">➕ Добавить барьер</button>
+                    <button class="btn" onclick="showMessage('Проект создан студентами ИТАС для улучшения доступности города')">📖 О проекте</button>
+                    <button class="btn" onclick="showMessage('Для срочной помощи звоните: +7 (3952) 40-50-00')">♿ Срочно нужна помощь</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="menu-button" onclick="openMiniApp()">
+            🗺 <span>Карта троп</span>
+        </div>
+    </div>
+    
+    <div class="mini-app" id="miniApp">
+        <div class="mini-app-header">
+            <h3>🗺 Карта-дневник</h3>
+            <button class="mini-app-close" onclick="closeMiniApp()">✕</button>
+        </div>
+        <div class="mini-app-content" id="miniAppContent">
+            <div id="mapView">
+                <h2 style="margin-bottom: 20px;">Район ИрНИТУ</h2>
+                <div class="map-container">
+                    <svg class="map-svg" viewBox="0 0 800 400">
+                        <line x1="0" y1="200" x2="800" y2="200" stroke="#5288c1" stroke-width="20" opacity="0.3"/>
+                        <text x="400" y="195" text-anchor="middle" fill="#8b9dc3" font-size="14">ул. Лермонтова</text>
+                        
+                        <circle class="map-point" cx="400" cy="200" r="15" fill="#ff4757" onclick="showDiary(0)"/>
+                        <text x="400" y="230" text-anchor="middle" fill="#fff" font-size="11">ИТАС</text>
+                        
+                        <circle class="map-point" cx="350" cy="180" r="12" fill="#ffa502" onclick="showDiary(1)"/>
+                        <text x="350" y="165" text-anchor="middle" fill="#fff" font-size="10">Punto</text>
+                        
+                        <circle class="map-point" cx="450" cy="180" r="12" fill="#ffa502" onclick="showDiary(2)"/>
+                        <text x="450" y="165" text-anchor="middle" fill="#fff" font-size="10">Papa</text>
+                        
+                        <circle class="map-point" cx="500" cy="200" r="15" fill="#2ed573" onclick="showDiary(3)"/>
+                        <text x="500" y="230" text-anchor="middle" fill="#fff" font-size="11">Подземник</text>
+                        
+                        <circle class="map-point" cx="300" cy="250" r="15" fill="#2ed573" onclick="showDiary(4)"/>
+                        <text x="300" y="275" text-anchor="middle" fill="#fff" font-size="11">Общ. №3</text>
+                        
+                        <circle class="map-point" cx="350" cy="250" r="15" fill="#2ed573" onclick="showDiary(5)"/>
+                        <text x="350" y="275" text-anchor="middle" fill="#fff" font-size="11">Общ. №2</text>
+                        
+                        <circle class="map-point" cx="250" cy="250" r="15" fill="#ff4757" onclick="showDiary(6)"/>
+                        <text x="250" y="275" text-anchor="middle" fill="#fff" font-size="11">Общ. №1</text>
+                        
+                        <circle class="map-point" cx="550" cy="150" r="15" fill="#ffa502" onclick="showDiary(7)"/>
+                        <text x="550" y="135" text-anchor="middle" fill="#fff" font-size="11">Остановка</text>
+                        
+                        <circle class="map-point" cx="600" cy="200" r="15" fill="#ff4757" onclick="showDiary(8)"/>
+                        <text x="600" y="230" text-anchor="middle" fill="#fff" font-size="11">ИрНИТУ</text>
+                        
+                        <circle class="map-point" cx="200" cy="150" r="15" fill="#2ed573" onclick="showDiary(9)"/>
+                        <text x="200" y="135" text-anchor="middle" fill="#fff" font-size="11">Биг Бен</text>
+                        
+                        <rect x="20" y="20" width="150" height="100" fill="#242f3d" rx="8"/>
+                        <circle cx="40" cy="45" r="8" fill="#ff4757"/>
+                        <text x="55" y="50" fill="#fff" font-size="12">Барьер</text>
+                        <circle cx="40" cy="70" r="8" fill="#ffa502"/>
+                        <text x="55" y="75" fill="#fff" font-size="12">Осторожно</text>
+                        <circle cx="40" cy="95" r="8" fill="#2ed573"/>
+                        <text x="55" y="100" fill="#fff" font-size="12">Доступно</text>
+                    </svg>
+                </div>
+                <p style="text-align: center; color: #8b9dc3; font-size: 14px;">Нажмите на точку для просмотра записи</p>
+            </div>
+            
+            <div id="diaryView" style="display: none;"></div>
+        </div>
+    </div>
+    
+    <script>
+        const diaryEntries = [
+            {
+                title: "Вход в корпус ИТАС",
+                address: "Лермонтова, 92",
+                image: "https://i.ibb.co/5JYSYr8/i-5.jpg",
+                status: "red",
+                statusText: "Барьер",
+                text: "Главный вход в наш корпус. Высокое крыльцо со ступенями, пандуса нет. Чтобы попасть внутрь на коляске, нужно искать чёрный ход или просить помощи. Формально здание учебное, фактически — крепость."
+            },
+            {
+                title: "Punto Coffee",
+                address: "Лермонтова, 92/2",
+                image: "https://i.ibb.co/pvytbDrD/Screenshot-20261107-125026.jpg",
+                status: "yellow",
+                statusText: "Осторожно",
+                text: "Кофейня на первом этаже. Заехать можно, но с трудом: узкий проход между стойкой и столиками, дверь открывается на себя. Если внутри много людей — маневрировать почти невозможно."
+            },
+            {
+                title: "Papa Chicken",
+                address: "Лермонтова, 92/1",
+                image: "https://i.ibb.co/vCMFCSzr/Screenshot-20261107-125148.jpg",
+                status: "yellow",
+                statusText: "Осторожно",
+                text: "Фастфуд рядом с корпусом. Есть небольшая ступенька на входе, дверь тяжёлая. Внутри узкие проходы между кассой и раздаточной. Заказать можно, но сесть с комфортом — вряд ли."
+            },
+            {
+                title: "Подземный переход",
+                address: "Лермонтова, напротив Гуманитарного центра",
+                image: "https://i.ibb.co/1ftdHdWg/8f7739d7-a123-4077-9d07-f6011288dbc4-jpg-730x1000-x-False-q85.jpg",
+                status: "green",
+                statusText: "Доступно",
+                text: "Приятное исключение! В подземном переходе есть спуски для колясок — пологие пандусы с обеих сторон. В 2025 году стены расписали граффити, но про доступность не забыли. Можно спокойно переходить улицу."
+            },
+            {
+                title: "Общежитие №3",
+                address: "Лермонтова, 89",
+                image: "https://i.ibb.co/6RPLSBNR/Screenshot-20261107-125348.jpg",
+                status: "green",
+                statusText: "Доступно",
+                text: "Советское здание, но с пандусом у входа. Наклон нормальный, поручни есть. Внутри лифт работает. Студенты с инвалидностью живут здесь без проблем."
+            },
+            {
+                title: "Общежитие №2",
+                address: "Лермонтова, 87",
+                image: "https://i.ibb.co/xKq8bVkw/Screenshot-20261107-125555.jpg",
+                status: "green",
+                statusText: "Доступно",
+                text: "Аналогично третьему общежитию: пандус установлен, угол пологий, поручни надёжные. Входная дверь автоматическая или лёгкая. Внутри есть лифт."
+            },
+            {
+                title: "Общежитие №1",
+                address: "Лермонтова, 85",
+                image: "https://i.ibb.co/xKq8bVkw/Screenshot-20261107-125555.jpg",
+                status: "red",
+                statusText: "Барьер",
+                text: "А вот здесь проблема. Пандуса нет, только высокое крыльцо со ступенями. Чтобы попасть внутрь, нужно либо искать запасной вход (если он вообще есть), либо звать вахтёра с ключом от боковой двери."
+            },
+            {
+                title: "Остановка «Технический университет»",
+                address: "Лермонтова",
+                image: "https://i.ibb.co/TMRDkqtX/Screenshot-20261107-125830.jpg",
+                status: "yellow",
+                statusText: "Осторожно",
+                text: "Новая тёплая остановка 2024 года. Сам павильон удобный, но есть нюанс: высота бордюра не совпадает с полом автобуса. Колясочнику нужна помощь, чтобы заехать. Если дождь — под козырёк не подняться, там ступенька."
+            },
+            {
+                title: "Главный корпус ИрНИТУ",
+                address: "Лермонтова, 83",
+                image: "https://i.ibb.co/rf6xjjFC/Screenshot-20261107-130029.jpg",
+                status: "red",
+                statusText: "Барьер",
+                text: "Главный вход — только лестница. Никаких пандусов, подъёмников или лифтов у парадного крыльца. Вуз закупил мобильные подъёмники, но их нужно заказывать заранее. Спонтанно зайти на лекцию не получится."
+            },
+            {
+                title: "ТЦ «Биг Бен»",
+                address: "Лермонтова, 63а",
+                image: "https://i.ibb.co/yznh0Gx/Screenshot-20261107-130816.jpg",
+                status: "green",
+                statusText: "Доступно",
+                text: "Отличный пример! У входа есть подъёмник для инвалидов. Работает исправно, кнопки вызова персонала на месте. Внутри лифты, широкие проходы между магазинами, доступные туалеты. Здесь продумали всё."
+            }
+        ];
+        
+        function openMiniApp() {
+            document.getElementById('miniApp').classList.add('active');
+        }
+        
+        function closeMiniApp() {
+            document.getElementById('miniApp').classList.remove('active');
+            document.getElementById('mapView').style.display = 'block';
+            document.getElementById('diaryView').style.display = 'none';
+        }
+        
+        function showDiary(index) {
+            const entry = diaryEntries[index];
+            const statusClass = entry.status === 'red' ? 'status-red' : entry.status === 'yellow' ? 'status-yellow' : 'status-green';
+            
+            document.getElementById('mapView').style.display = 'none';
+            const diaryView = document.getElementById('diaryView');
+            diaryView.style.display = 'block';
+            
+            diaryView.innerHTML = `
+                <div class="diary-entry">
+                    <h2 style="margin-bottom: 10px;">${entry.title}</h2>
+                    <p style="color: #666; margin-bottom: 20px;">${entry.address}</p>
+                    
+                    <div class="polaroid">
+                        <img src="${entry.image}" alt="${entry.title}">
+                        <div class="polaroid-caption">Запись из полевого дневника</div>
+                    </div>
+                    
+                    <span class="status-badge ${statusClass}">${entry.statusText}</span>
+                    
+                    <div class="diary-text">
+                        ${entry
